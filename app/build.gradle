@@ -1,0 +1,110 @@
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    def versionMajor = 4
+    def versionMinor = 0
+    def versionPatch = 0
+
+
+    defaultConfig {
+        applicationId "amir.ashrafi.ihome"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.compileSdkVersion
+        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        vectorDrawables.useSupportLibrary = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android {
+        lintOptions {
+            abortOnError false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation rootProject.ext.libraries.junit
+    implementation rootProject.ext.libraries.appCompat
+    implementation rootProject.ext.libraries.recyclerView
+    implementation rootProject.ext.libraries.cardView
+    implementation rootProject.ext.libraries.androidSupport4
+    implementation rootProject.ext.libraries.designSupport
+    implementation rootProject.ext.libraries.constraintLayout
+
+    implementation rootProject.ext.libraries.rxjava
+    implementation rootProject.ext.libraries.rxandroid
+    implementation rootProject.ext.libraries.rxbinding
+
+    implementation rootProject.ext.libraries.butterknife
+    annotationProcessor rootProject.ext.libraries.butterknifeCompiler
+
+    implementation rootProject.ext.libraries.retrofit
+    implementation rootProject.ext.libraries.retrofitConverter
+    implementation rootProject.ext.libraries.retrofitAdapter
+    implementation rootProject.ext.libraries.okhttpLogging
+    implementation rootProject.ext.libraries.okhttp3
+
+    implementation rootProject.ext.libraries.picasso
+
+    implementation rootProject.ext.libraries.dagger
+    implementation rootProject.ext.libraries.daggerAndroid
+    implementation rootProject.ext.libraries.daggerSupport
+    annotationProcessor rootProject.ext.libraries.daggerCompiler
+    annotationProcessor rootProject.ext.libraries.daggerAndroidCompiler
+
+    implementation rootProject.ext.libraries.materialProgress
+
+    implementation rootProject.ext.libraries.materialsearchview
+
+    implementation rootProject.ext.libraries.calligraphy
+
+}
+
+android.applicationVariants.all { variant ->
+
+    def appName
+    if (project.hasProperty("applicationName")) {
+        appName = "${applicationName}"
+    } else {
+        appName = parent.name
+    }
+    variant.outputs.all { output ->
+        def newApkName
+        newApkName = "${appName}-${output.baseName}-${variant.versionName}.apk"
+        output.outputFileName = new File(newApkName)
+    }
+}
+
+// For app signing
+if (["storeFile", "storePassword", "keyAlias", "keyPassword"].count {
+    !project.hasProperty(it)
+} == 0) {
+    android {
+        signingConfigs {
+            release {
+                storeFile = file(project.storeFile)
+                storePassword = project.storePassword
+                keyAlias = project.keyAlias
+                keyPassword = project.keyPassword
+            }
+        }
+    }
+    android.buildTypes.release.signingConfig = android.signingConfigs.release
+}
